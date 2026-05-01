@@ -14,8 +14,8 @@ load_dotenv()
 BOT_TOKEN = os.getenv("DISCORD_TOKEN")
 
 # ================== CẤU HÌNH THÔNG BÁO ==================
-YOUR_GUILD_ID = 1400489475154514002          # ← ID SERVER CỦA BẠN (đã thay)
-NOTIFICATION_CHANNEL_ID = 1496189946464043171  # ← ID KÊNH THÔNG BÁO (đã thay)
+YOUR_GUILD_ID = 1400489475154514002
+NOTIFICATION_CHANNEL_ID = 1496189946464043171
 
 COMMAND_PREFIX = "!"
 EMBED_COLOR = 0x1DB954
@@ -173,15 +173,21 @@ class MusicCog(commands.Cog):
             await vc.disconnect()
         await interaction.response.send_message("✅ Đã rời kênh.")
 
-# ================== THÔNG BÁO JOIN / LEAVE ==================
+# ================== THÔNG BÁO JOIN / LEAVE (ĐÃ SỬA) ==================
 @bot.event
 async def on_voice_state_update(member, before, after):
+    print(f"[DEBUG] Event chạy - Guild: {member.guild.id} | Member: {member.name}")
+    
     if member.guild.id != YOUR_GUILD_ID:
+        print("[DEBUG] Guild ID không khớp")
         return
 
     channel = bot.get_channel(NOTIFICATION_CHANNEL_ID)
     if not channel:
+        print("[DEBUG] Không tìm thấy kênh thông báo")
         return
+
+    print(f"[DEBUG] Gửi thông báo vào kênh: {channel.name}")
 
     if before.channel is None and after.channel is not None:
         embed = discord.Embed(
@@ -191,6 +197,7 @@ async def on_voice_state_update(member, before, after):
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
         embed.set_thumbnail(url=member.display_avatar.url)
         await channel.send(embed=embed)
+        print("[DEBUG] Đã gửi thông báo JOIN")
 
     elif before.channel is not None and after.channel is None:
         embed = discord.Embed(
@@ -200,6 +207,7 @@ async def on_voice_state_update(member, before, after):
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
         embed.set_thumbnail(url=member.display_avatar.url)
         await channel.send(embed=embed)
+        print("[DEBUG] Đã gửi thông báo LEAVE")
 
 # ================== BOT SETUP ==================
 intents = discord.Intents.default()
